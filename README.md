@@ -63,15 +63,6 @@ Usage
      * }
      */
      
-**You can also call logging functions directly on a `jog` object**  
-
-    // Create a jog instance
-    j := jog.New(loggers.NewBasicFromConfig())
-
-    // Call 'Level' functions of the `jog` object
-    j.Critical("Kaboom!")
-    j.Info(Person{"Jack", 39})
-
 With the above `CustomMessage` type the `fmt.Stringer` interface needs to be implemented to just return the JSON for the object.  
 
 *(This is due to the log package functions performing `fmt.Sprintf(format, v...)` to PrintX calls)*
@@ -81,6 +72,14 @@ With the above `CustomMessage` type the `fmt.Stringer` interface needs to be imp
         return string(b)
     }
 
+**You can also call logging functions directly on a `jog` object**  
+
+    // Create a jog instance
+    j := jog.New(loggers.NewBasicFromConfig())
+
+    // Call 'Level' functions of the `jog` object
+    j.Critical("Kaboom!")
+    j.Info(Person{"Jack", 39})
 
 Customizing
 ===========
