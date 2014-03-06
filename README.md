@@ -75,7 +75,7 @@ With the above `CustomMessage` type the `fmt.Stringer` interface needs to be imp
 **You can also call logging functions directly on a `jog` object**  
 
     // Create a jog instance
-    j := jog.New(loggers.NewBasicFromConfig())
+    j := jog.New(loggers.NewFromConfig())
 
     // Call 'Level' functions of the `jog` object
     j.Critical("Kaboom!")
