@@ -146,18 +146,13 @@ func newMessage(l Level, d interface{}, depth int) *message {
 		Data:  d,
 		Level: l,
 		Time:  time.Now().UTC(),
+		File:  "???",
+		Line:  0,
 	}
-	/*m := new(message)
-	m.Data = d
-	m.Level = l
-	m.Time = time.Now().UTC()*/
 
 	// Set filename/line number of invoker
-	ok := false
-	_, m.File, m.Line, ok = runtime.Caller(depth)
-	if !ok {
-		m.File = "???"
-		m.Line = 0
+	if _, file, line, ok := runtime.Caller(depth); ok {
+		m.File, m.Line = file, line
 	}
 
 	return m
