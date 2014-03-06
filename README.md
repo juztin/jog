@@ -6,7 +6,7 @@ Jog is a simple log implementation that outputs JSON data. Loggers may be implem
 The standard log package can be used with jog, by calling log.SetOuput with a jog writer. 
 
 Installation
---------------
+------------
 
 ```
 $ go get bitbucket.org/juztin/jog
@@ -14,6 +14,9 @@ $ go get bitbucket.org/juztin/jog
 
 Usage
 -----
+
+    // We invoke this once to do a basic setup. *(see below for basic setup)*
+    loggers.SetBasicLogger()
 
     // Log just like normal
     log.Println("domo arigato mr roboto")
@@ -60,6 +63,14 @@ Usage
      * }
      */
      
+**You can also call logging functions directly on a `jog` object**  
+
+    // Create a jog instance
+    j := jog.New(loggers.NewBasicFromConfig())
+
+    // Call 'Level' functions of the `jog` object
+    j.Critical("Kaboom!")
+    j.Info(Person{"Jack", 39})
 
 With the above `CustomMessage` type the `fmt.Stringer` interface needs to be implemented to just return the JSON for the object.  
 
@@ -72,10 +83,27 @@ With the above `CustomMessage` type the `fmt.Stringer` interface needs to be imp
 
 
 Customizing
-=========
+===========
 To implement your own custom Logger *(to use OAUTH2, Loggly, etc.)* take a look at at the Basic logger implementation within the `loggers` sub-package
 
+
+BasicLogger
+-----------
+The basic logger simply invokes a URL with a POST with the given data.  
+The settings may be passed in to `loggers.New(client *http.Client, name, url string)`  
+  or  
+They can be loaded from `config.json` with `loggers.NewFromConfig()` using the syntax below:  
+
+    {
+        "jog": {
+            "verifySSL": true,
+            "url": "http://localhost",
+            "name": "SweetAppName"
+        }
+    }
+
+
 License
-----
+-------
 
 Simplified BSD

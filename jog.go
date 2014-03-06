@@ -43,23 +43,33 @@ type Logger interface {
 }
 
 // logWRiter implements io.Writer so it can be used as log.SetOutput(logWriter)
-type logWriter struct {
+type Jog struct {
 	logger Logger
 }
 
-// io.Writer
-func (w *logWriter) Write(p []byte) (int, error) {
-	m := new(message)
-	m.Level = INFO
-	m.Time = time.Now().UTC()
-	ok := false
+func (j *Jog) Log(l Level, o interface{}) error {
+	_, err := j.write(newMessage(l, o))
+	return err
+}
+func (j *Jog) Critical(o interface{}) error {
+	return j.Log(CRITICAL, o)
+}
+func (j *Jog) Error(o interface{}) error {
+	return j.Log(ERROR, o)
+}
+func (j *Jog) Warning(o interface{}) error {
+	return j.Log(WARNING, o)
+}
+func (j *Jog) Info(o interface{}) error {
+	return j.Log(INFO, o)
+}
+func (j *Jog) Debug(o interface{}) error {
+	return j.Log(DEBUG, o)
+}
 
-	// Set filename/line number of invoker
-	_, m.File, m.Line, ok = runtime.Caller(3)
-	if !ok {
-		m.File = "???"
-		m.Line = 0
-	}
+// io.Writer
+func (j *Jog) Write(p []byte) (int, error) {
+	m := newMessage(INFO, nil)
 
 	// Remove trailing "\n", added by `log.Output(int, string)`
 	l := len(p) - 1
@@ -77,17 +87,17 @@ func (w *logWriter) Write(p []byte) (int, error) {
 	}
 
 	// Send to logger
-	return w.write(m)
+	return j.write(m)
 }
 
 // Invoke the Logger with the JSON data
-func (w *logWriter) write(m *message) (int, error) {
+func (j *Jog) write(m *message) (int, error) {
 	b, err := json.Marshal(m)
 	if err != nil {
 		m := fmt.Sprintf("[LOG FAILURE] - Failed to marshal JSON for %v, %s\n", m, err)
 		os.Stderr.Write([]byte(m))
 		//b = []byte(fmt.Sprintf("%#v -> %s", m, err))
-	} else if err = w.logger.Log(b); err != nil {
+	} else if err = j.logger.Log(b); err != nil {
 		m := fmt.Sprintf("[LOG FAILURE] - (Logger) %s -> %s\n", err, b)
 		os.Stderr.Write([]byte(m))
 	}
@@ -131,12 +141,38 @@ func levelFrom(o interface{}) Level {
 	return level
 }
 
+func newMessage(l Level, d interface{}) *message {
+	m := &message{
+		Data:  d,
+		Level: l,
+		Time:  time.Now().UTC(),
+	}
+	/*m := new(message)
+	m.Data = d
+	m.Level = l
+	m.Time = time.Now().UTC()*/
+
+	// Set filename/line number of invoker
+	ok := false
+	_, m.File, m.Line, ok = runtime.Caller(4)
+	if !ok {
+		m.File = "???"
+		m.Line = 0
+	}
+
+	return m
+}
+
 // NewWriter returns an io.Writer used to JSONify log messages
 func NewWriter(l Logger) io.Writer {
-	return &logWriter{l}
+	return &Jog{l}
 }
 
 // New returns a new Logger
-func New(l Logger) *log.Logger {
-	return log.New(&logWriter{l}, "", 0)
+func NewLogger(l Logger) *log.Logger {
+	return log.New(&Jog{l}, "", 0)
+}
+
+func New(l Logger) *Jog {
+	return &Jog{l}
 }

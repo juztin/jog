@@ -18,13 +18,13 @@ import (
 	"bitbucket.org/juztin/jog"
 )
 
-type basicLogger struct {
+type logger struct {
 	client    *http.Client
 	url, name string
 }
 
 // Log sends the data to an HTTP endpoint
-func (l *basicLogger) Log(p []byte) error {
+func (l *logger) Log(p []byte) error {
 	buf := bytes.NewBuffer(p)
 	resp, err := l.client.Post(l.url, "application/json", buf)
 	if err != nil {
@@ -35,7 +35,7 @@ func (l *basicLogger) Log(p []byte) error {
 	return nil
 }
 
-func basicCFG() (client *http.Client, name, url string) {
+func cfg() (client *http.Client, name, url string) {
 	tr := &http.Transport{}
 	if b, ok := config.GroupBool("jog", "verifySSL"); ok {
 		tr = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: b}}
@@ -52,18 +52,18 @@ func basicCFG() (client *http.Client, name, url string) {
 func SetBasicLogger() {
 	log.SetPrefix("")
 	log.SetFlags(0)
-	log.SetOutput(jog.NewWriter(NewBasic(basicCFG())))
+	log.SetOutput(jog.NewWriter(New(cfg())))
 }
 
-// NewBasic returns a new basic jog.Logger
-func NewBasic(client *http.Client, name, url string) jog.Logger {
+// NewFromConfig returns a new basic jog.Logger using `jog` values from `config.json`
+func NewFromConfig() jog.Logger {
+	return New(cfg())
+}
+
+// New returns a new basic jog.Logger
+func New(client *http.Client, name, url string) jog.Logger {
 	if strings.HasSuffix(url, "/") {
-		return &basicLogger{client, name, url + name}
+		return &logger{client, name, url + name}
 	}
-	return &basicLogger{client, name, fmt.Sprintf("%s/%s", url, name)}
-}
-
-// NewBasicLoggers returns a new basic jog.Logger using `jog` values from `config.json`
-func NewBasicLogger() *log.Logger {
-	return jog.New(NewBasic(basicCFG()))
+	return &logger{client, name, fmt.Sprintf("%s/%s", url, name)}
 }
