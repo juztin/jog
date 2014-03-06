@@ -88,7 +88,7 @@ func (w *logWriter) write(m *message) (int, error) {
 		os.Stderr.Write([]byte(m))
 		//b = []byte(fmt.Sprintf("%#v -> %s", m, err))
 	} else if err = w.logger.Log(b); err != nil {
-		m := fmt.Sprintf("[LOG FAILURE] - (Logger) %s\n", err)
+		m := fmt.Sprintf("[LOG FAILURE] - (Logger) %s -> %s\n", err, b)
 		os.Stderr.Write([]byte(m))
 	}
 
