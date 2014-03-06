@@ -80,6 +80,11 @@ With the above `CustomMessage` type the `fmt.Stringer` interface needs to be imp
     // Call 'Level' functions of the `jog` object
     j.Critical("Kaboom!")
     j.Info(Person{"Jack", 39})
+*(no need to implement `fmt.Stringer` this way)*  
+
+
+----
+
 
 Customizing
 ===========
