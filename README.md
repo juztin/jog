@@ -33,7 +33,7 @@ Usage
     
     // Log with custom JSON
     log.Println(CustomMessage{Name: "Jack", Age: 42, Message: "Failed Auth"})
-     * {
+    /* {
      *   "data": {
      *       "name": "Jack",
      *       "age": 42,
