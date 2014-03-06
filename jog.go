@@ -48,7 +48,7 @@ type Jog struct {
 }
 
 func (j *Jog) Log(l Level, o interface{}) error {
-	_, err := j.write(newMessage(l, o))
+	_, err := j.write(newMessage(l, o, 3))
 	return err
 }
 func (j *Jog) Critical(o interface{}) error {
@@ -69,7 +69,7 @@ func (j *Jog) Debug(o interface{}) error {
 
 // io.Writer
 func (j *Jog) Write(p []byte) (int, error) {
-	m := newMessage(INFO, nil)
+	m := newMessage(INFO, nil, 4)
 
 	// Remove trailing "\n", added by `log.Output(int, string)`
 	l := len(p) - 1
@@ -141,7 +141,7 @@ func levelFrom(o interface{}) Level {
 	return level
 }
 
-func newMessage(l Level, d interface{}) *message {
+func newMessage(l Level, d interface{}, depth int) *message {
 	m := &message{
 		Data:  d,
 		Level: l,
@@ -154,7 +154,7 @@ func newMessage(l Level, d interface{}) *message {
 
 	// Set filename/line number of invoker
 	ok := false
-	_, m.File, m.Line, ok = runtime.Caller(4)
+	_, m.File, m.Line, ok = runtime.Caller(depth)
 	if !ok {
 		m.File = "???"
 		m.Line = 0
