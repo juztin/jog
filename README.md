@@ -19,7 +19,6 @@ Usage
     log.Println("domo arigato mr roboto")
     /* This will produce the following:
      * {
-     *   "data": null,
      *   "message": "domo arigato mr robot",
      *   "level": "info",
      *   "file": "/home/you/thisfile.go",
