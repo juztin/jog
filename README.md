@@ -29,7 +29,7 @@ Usage
      */
     
     // Log with a level (defaults to INFO)
-    log.Println(Message{log.ERROR, err})
+    log.Println(Message{jog.ERROR, err})
     
     // Log with custom JSON
     log.Println(CustomMessage{Name: "Jack", Age: 42, Message: "Failed Auth"})
@@ -40,6 +40,21 @@ Usage
      *       "message": "Failed Auth"
      *   },
      *   "level": "info",
+     *   "file": "/home/you/thisfile.go",
+     *   "line": 42,
+     *   "time": "2014-03-06T19:38:32.834223448Z"
+     * }
+     */
+
+    // Log with custom JSON and Level
+    log.Println(CustomMessage{jog.WARNING, "Jack", 42, "Failed Auth"})
+    /* {
+     *   "data": {
+     *       "name": "Jack",
+     *       "age": 42,
+     *       "message": "Failed Auth"
+     *   },
+     *   "level": "warning",
      *   "file": "/home/you/thisfile.go",
      *   "line": 42,
      *   "time": "2014-03-06T19:38:32.834223448Z"
