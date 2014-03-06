@@ -29,7 +29,7 @@ const (
 type Level string
 
 type message struct {
-	Data    interface{} `json:"data"`
+	Data    interface{} `json:"data",omitempty`
 	Message string      `json:"message,omitempty"`
 	Level   Level       `json:"level"`
 	File    string      `json:"file"`
