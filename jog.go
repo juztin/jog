@@ -155,6 +155,19 @@ func newMessage(l Level, d interface{}, depth int) *message {
 		m.File, m.Line = file, line
 	}
 
+	if d == nil {
+		return m
+	}
+
+	// Set Data/Message fields
+	if s, ok := d.(string); ok {
+		m.Message = s
+		m.Data = nil
+	} else if b, err := json.Marshal(d); err != nil || len(b) < 3 {
+		m.Message = fmt.Sprint(d)
+		m.Data = nil
+	}
+
 	return m
 }
 
