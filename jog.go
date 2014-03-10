@@ -29,12 +29,11 @@ const (
 type Level string
 
 type message struct {
-	Data    interface{} `json:"data,omitempty"`
-	Message string      `json:"message,omitempty"`
-	Level   Level       `json:"level"`
-	File    string      `json:"file"`
-	Line    int         `json:"line"`
-	Time    time.Time   `json:"time"`
+	Data  interface{} `json:"data,omitempty"`
+	Level Level       `json:"level"`
+	File  string      `json:"file"`
+	Line  int         `json:"line"`
+	Time  time.Time   `json:"timestamp"`
 }
 
 // Logger is an interface used as the communication means for the log
@@ -83,7 +82,7 @@ func (j *Jog) Write(p []byte) (int, error) {
 	if isJSONLike && json.Unmarshal(p, &m.Data) == nil {
 		m.Level = levelFrom(m.Data)
 	} else {
-		m.Message = string(p)
+		m.Data = string(p)
 	}
 
 	// Send to logger
@@ -161,11 +160,9 @@ func newMessage(l Level, d interface{}, depth int) *message {
 
 	// Set Data/Message fields
 	if s, ok := d.(string); ok {
-		m.Message = s
-		m.Data = nil
+		m.Data = s
 	} else if b, err := json.Marshal(d); err != nil || len(b) < 3 {
-		m.Message = fmt.Sprint(d)
-		m.Data = nil
+		m.Data = fmt.Sprint(d)
 	}
 
 	return m
