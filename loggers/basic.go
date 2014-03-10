@@ -8,6 +8,7 @@ package loggers
 import (
 	"bytes"
 	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -24,15 +25,22 @@ type logger struct {
 }
 
 // Log sends the data to an HTTP endpoint
-func (l *logger) Log(p []byte) error {
-	buf := bytes.NewBuffer(p)
+func (l *logger) Log(m *jog.Message) (int, error) {
+	// Marshal to JSON
+	b, err := json.Marshal(m)
+	if err != nil {
+		return 0, err
+	}
+
+	// Send it on it's way
+	buf := bytes.NewBuffer(b)
 	resp, err := l.client.Post(l.url, "application/json", buf)
 	if err != nil {
-		return err
+		return 0, err
 	} else if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return errors.New(fmt.Sprintf("received a `%d` from endpoint `%s` with data -> %s", resp.StatusCode, l.url, p))
+		return 0, errors.New(fmt.Sprintf("received a `%d` from endpoint `%s` with data -> %s", resp.StatusCode, l.url, m))
 	}
-	return nil
+	return len(b), nil
 }
 
 func cfg() (client *http.Client, name, url string) {

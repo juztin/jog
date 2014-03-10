@@ -28,7 +28,7 @@ const (
 // Level is the level of the data being logged
 type Level string
 
-type message struct {
+type Message struct {
 	Data  interface{} `json:"data,omitempty"`
 	Level Level       `json:"level"`
 	File  string      `json:"file"`
@@ -38,7 +38,7 @@ type message struct {
 
 // Logger is an interface used as the communication means for the log
 type Logger interface {
-	Log(p []byte) error
+	Log(m *Message) (int, error)
 }
 
 // logWRiter implements io.Writer so it can be used as log.SetOutput(logWriter)
@@ -46,24 +46,28 @@ type Jog struct {
 	logger Logger
 }
 
-func (j *Jog) Log(l Level, o interface{}) error {
-	_, err := j.write(newMessage(l, o, 3))
-	return err
+func (j *Jog) Log(l Level, o interface{}) (int, error) {
+	return j.write(newMessage(l, o, 3))
 }
 func (j *Jog) Critical(o interface{}) error {
-	return j.Log(CRITICAL, o)
+	_, err := j.Log(CRITICAL, o)
+	return err
 }
 func (j *Jog) Error(o interface{}) error {
-	return j.Log(ERROR, o)
+	_, err := j.Log(ERROR, o)
+	return err
 }
 func (j *Jog) Warning(o interface{}) error {
-	return j.Log(WARNING, o)
+	_, err := j.Log(WARNING, o)
+	return err
 }
 func (j *Jog) Info(o interface{}) error {
-	return j.Log(INFO, o)
+	_, err := j.Log(INFO, o)
+	return err
 }
 func (j *Jog) Debug(o interface{}) error {
-	return j.Log(DEBUG, o)
+	_, err := j.Log(DEBUG, o)
+	return err
 }
 
 // io.Writer
@@ -90,21 +94,14 @@ func (j *Jog) Write(p []byte) (int, error) {
 }
 
 // Invoke the Logger with the JSON data
-func (j *Jog) write(m *message) (int, error) {
-	b, err := json.Marshal(m)
+func (j *Jog) write(m *Message) (int, error) {
+	n, err := j.logger.Log(m)
 	if err != nil {
-		m := fmt.Sprintf("[LOG FAILURE] - Failed to marshal JSON for %v, %s\n", m, err)
-		os.Stderr.Write([]byte(m))
-		//b = []byte(fmt.Sprintf("%#v -> %s", m, err))
-	} else if err = j.logger.Log(b); err != nil {
-		m := fmt.Sprintf("[LOG FAILURE] - (Logger) %s -> %s\n", err, b)
-		os.Stderr.Write([]byte(m))
-	}
-
-	if err != nil {
+		s := fmt.Sprintf("[LOG FAILURE] - (Logger) %s -> %#v\n", err, m)
+		os.Stderr.Write([]byte(fmt.Sprintf("%v", s)))
 		return 0, err
 	}
-	return len(b), err
+	return n, err
 }
 
 // Pulls the `level` value from the message to be logged
@@ -140,8 +137,8 @@ func levelFrom(o interface{}) Level {
 	return level
 }
 
-func newMessage(l Level, d interface{}, depth int) *message {
-	m := &message{
+func newMessage(l Level, d interface{}, depth int) *Message {
+	m := &Message{
 		Data:  d,
 		Level: l,
 		Time:  time.Now().UTC(),
