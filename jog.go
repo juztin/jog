@@ -28,6 +28,8 @@ const (
 // Level is the level of the data being logged
 type Level string
 
+// Message is used to capture basic information to be logged.
+// This message is then passed to the log function of a Logger.
 type Message struct {
 	Data  interface{} `json:"data,omitempty"`
 	Level Level       `json:"level"`
@@ -41,36 +43,50 @@ type Logger interface {
 	Log(m *Message) (int, error)
 }
 
-// logWRiter implements io.Writer so it can be used as log.SetOutput(logWriter)
+// Jog is the core logging type, it contains an instance of a Logger that is passed
+// the log Message.
+// Jog implements io.Writer so it can be used as log.SetOutput(logWriter)
 type Jog struct {
 	logger Logger
 }
 
+// Log with a given Level and object
 func (j *Jog) Log(l Level, o interface{}) (int, error) {
 	return j.write(newMessage(l, o, 3))
 }
+
+// Log a critical message by the given object
 func (j *Jog) Critical(o interface{}) error {
 	_, err := j.Log(CRITICAL, o)
 	return err
 }
+
+// Log a error message by the given object
 func (j *Jog) Error(o interface{}) error {
 	_, err := j.Log(ERROR, o)
 	return err
 }
+
+// Log a warning message by the given object
 func (j *Jog) Warning(o interface{}) error {
 	_, err := j.Log(WARNING, o)
 	return err
 }
+
+// Log a info message by the given object
 func (j *Jog) Info(o interface{}) error {
 	_, err := j.Log(INFO, o)
 	return err
 }
+
+// Log a debug message by the given object
 func (j *Jog) Debug(o interface{}) error {
 	_, err := j.Log(DEBUG, o)
 	return err
 }
 
-// io.Writer
+// Writes the given bytes to a Logger
+// (implementation of io.Writer)
 func (j *Jog) Write(p []byte) (int, error) {
 	m := newMessage(INFO, nil, 4)
 
@@ -165,16 +181,17 @@ func newMessage(l Level, d interface{}, depth int) *Message {
 	return m
 }
 
-// NewWriter returns an io.Writer used to JSONify log messages
+// NewWriter returns an io.Writer used to write custom log messages
 func NewWriter(l Logger) io.Writer {
 	return &Jog{l}
 }
 
-// New returns a new Logger
+// New returns a new Logger using a Jog logger
 func NewLogger(l Logger) *log.Logger {
 	return log.New(&Jog{l}, "", 0)
 }
 
+// New returns a new Jog instance
 func New(l Logger) *Jog {
 	return &Jog{l}
 }
