@@ -19,13 +19,13 @@ import (
 	"bitbucket.org/juztin/jog"
 )
 
-type logger struct {
+type basic struct {
 	client    *http.Client
 	url, name string
 }
 
 // Log sends the data to an HTTP endpoint
-func (l *logger) Log(m *jog.Message) (int, error) {
+func (l *basic) Log(m *jog.Message) (int, error) {
 	// Marshal to JSON
 	b, err := json.Marshal(m)
 	if err != nil {
@@ -56,8 +56,8 @@ func cfg() (client *http.Client, name, url string) {
 	return
 }
 
-// SetBasicLogger sets the output of the log package so any logging is passed through a basic logger
-func SetBasicLogger() {
+// SetBasic sets the output of the log package so any logging is passed through a basic logger
+func SetBasic() {
 	log.SetPrefix("")
 	log.SetFlags(0)
 	log.SetOutput(jog.NewWriter(New(cfg())))
@@ -71,7 +71,7 @@ func NewFromConfig() jog.Logger {
 // New returns a new basic jog.Logger
 func New(client *http.Client, name, url string) jog.Logger {
 	if strings.HasSuffix(url, "/") {
-		return &logger{client, name, url + name}
+		return &basic{client, name, url + name}
 	}
-	return &logger{client, name, fmt.Sprintf("%s/%s", url, name)}
+	return &basic{client, name, fmt.Sprintf("%s/%s", url, name)}
 }
