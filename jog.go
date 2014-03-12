@@ -31,7 +31,7 @@ type Level string
 // Message is used to capture basic information to be logged.
 // This message is then passed to the log function of a Logger.
 type Message struct {
-	Data  interface{} `json:"data,omitempty"`
+	Data  interface{} `json:"data"`
 	Level Level       `json:"level"`
 	File  string      `json:"file"`
 	Line  int         `json:"line"`
