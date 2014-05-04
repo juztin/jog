@@ -15,8 +15,8 @@ import (
 	"net/http"
 	"strings"
 
-	"bitbucket.org/juztin/config"
-	"bitbucket.org/juztin/jog"
+	"minty.io/config"
+	"minty.io/jog"
 )
 
 type basic struct {

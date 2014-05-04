@@ -9,7 +9,7 @@ Installation
 ------------
 
 ```
-$ go get bitbucket.org/juztin/jog
+$ go get minty.io/jog
 ```
 
 Usage
