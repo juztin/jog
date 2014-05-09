@@ -1,5 +1,5 @@
 #!/bin/sh -
 
-go install minty.io/jog
-go install minty.io/jog/loggers
+go install code.minty.io/jog
+go install code.minty.io/jog/loggers
 

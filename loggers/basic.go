@@ -15,8 +15,8 @@ import (
 	"net/http"
 	"strings"
 
-	"minty.io/config"
-	"minty.io/jog"
+	"code.minty.io/config"
+	"code.minty.io/jog"
 )
 
 type basic struct {
