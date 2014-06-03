@@ -85,8 +85,8 @@ func (d dummy2) String() string {
 	return "dummy2"
 }
 
-func (l *testLogger) Log(m *Message) (int, error) {
-	l.message = m
+func (l *testLogger) Log(m interface{}) (int, error) {
+	l.message = m.(*Message)
 	return -1, nil
 }
 

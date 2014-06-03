@@ -23,6 +23,7 @@ const (
 	WARNING  = Level("warning")
 	INFO     = Level("info")
 	DEBUG    = Level("debug")
+	UNKNOWN  = Level("unknown")
 )
 
 // Level is the level of the data being logged
@@ -40,7 +41,7 @@ type Message struct {
 
 // Logger is an interface used as the communication means for the log
 type Logger interface {
-	Log(m *Message) (int, error)
+	Log(m interface{}) (int, error)
 }
 
 // Jog is the core logging type, it contains an instance of a Logger that is passed

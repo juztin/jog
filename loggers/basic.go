@@ -25,7 +25,7 @@ type basic struct {
 }
 
 // Log sends the data to an HTTP endpoint
-func (l *basic) Log(m *jog.Message) (int, error) {
+func (l *basic) Log(m interface{}) (int, error) {
 	// Marshal to JSON
 	b, err := json.Marshal(m)
 	if err != nil {
@@ -71,7 +71,7 @@ func NewFromConfig() jog.Logger {
 // New returns a new basic jog.Logger
 func New(client *http.Client, name, url string) jog.Logger {
 	if strings.HasSuffix(url, "/") {
-		return &basic{client, name, url + name}
+		return &basic{client, url + name, name}
 	}
-	return &basic{client, name, fmt.Sprintf("%s/%s", url, name)}
+	return &basic{client, fmt.Sprintf("%s/%s", url, name), name}
 }
