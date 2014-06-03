@@ -38,7 +38,7 @@ func (l *basic) Log(m interface{}) (int, error) {
 	if err != nil {
 		return 0, err
 	} else if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return 0, errors.New(fmt.Sprintf("received a `%d` from endpoint `%s` with data -> %s", resp.StatusCode, l.url, m))
+		return 0, errors.New(fmt.Sprintf("received a `%d` from endpoint `%s` with data -> %s", resp.StatusCode, l.url, b))
 	}
 	return len(b), nil
 }
