@@ -49,11 +49,12 @@ type Logger interface {
 // Jog implements io.Writer so it can be used as log.SetOutput(logWriter)
 type Jog struct {
 	logger Logger
+	Depth  int
 }
 
 // Log with a given Level and object
 func (j *Jog) Log(l Level, o interface{}) (int, error) {
-	return j.write(newMessage(l, o, 3))
+	return j.write(newMessage(l, o, j.Depth))
 }
 
 // Log a critical message by the given object
@@ -89,7 +90,7 @@ func (j *Jog) Debug(o interface{}) error {
 // Writes the given bytes to a Logger
 // (implementation of io.Writer)
 func (j *Jog) Write(p []byte) (int, error) {
-	m := newMessage(INFO, nil, 4)
+	m := newMessage(INFO, nil, j.Depth+1)
 
 	// Remove trailing "\n", added by `log.Output(int, string)`
 	l := len(p) - 1
@@ -184,15 +185,25 @@ func newMessage(l Level, d interface{}, depth int) *Message {
 
 // NewWriter returns an io.Writer used to write custom log messages
 func NewWriter(l Logger) io.Writer {
-	return &Jog{l}
+	return &Jog{l, 3}
+}
+
+// New returns a new Logger using a Jog logger
+func NewLoggerWithDepth(l Logger, depth int) *log.Logger {
+	return log.New(&Jog{l, depth}, "", 0)
 }
 
 // New returns a new Logger using a Jog logger
 func NewLogger(l Logger) *log.Logger {
-	return log.New(&Jog{l}, "", 0)
+	return NewLoggerWithDepth(l, 3)
+}
+
+// New returns a new Jog instance with a depth value for runtime.Caller
+func NewWithDepth(l Logger, depth int) *Jog {
+	return &Jog{l, depth}
 }
 
 // New returns a new Jog instance
 func New(l Logger) *Jog {
-	return &Jog{l}
+	return NewWithDepth(l, 3)
 }
