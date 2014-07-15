@@ -50,8 +50,8 @@ func cfg() (client *http.Client, name, url string) {
 	}
 
 	client = &http.Client{Transport: tr}
-	name = config.Required.GroupString("jog", "name")
-	url = config.Required.GroupString("jog", "url")
+	name = config.RequiredGroupString("jog", "name")
+	url = config.RequiredGroupString("jog", "url")
 
 	return
 }
