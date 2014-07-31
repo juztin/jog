@@ -115,7 +115,7 @@ func (j *Jog) Write(p []byte) (int, error) {
 func (j *Jog) write(m *Message) (int, error) {
 	n, err := j.logger.Log(m)
 	if err != nil {
-		s := fmt.Sprintf("[LOG FAILURE] - (Logger) %s -> %#v\n", err, m)
+		s := fmt.Sprintf("[LOG FAILURE] - (Logger) %s -> \n%s\n", err, m)
 		os.Stderr.Write([]byte(fmt.Sprintf("%v", s)))
 		return 0, err
 	}
@@ -153,6 +153,11 @@ func levelFrom(o interface{}) Level {
 	}
 
 	return level
+}
+
+func (m *Message) String() string {
+	return fmt.Sprintf("Level: %s\nFile: %s\nLine: %d\nTime: %s\nData: %s",
+		m.Level, m.File, m.Line, m.Time, m.Data)
 }
 
 func newMessage(l Level, d interface{}, depth int) *Message {
