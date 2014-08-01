@@ -12,8 +12,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"strings"
+	"time"
 
 	"code.minty.io/config"
 	"code.minty.io/jog"
@@ -22,6 +24,14 @@ import (
 type basic struct {
 	client    *http.Client
 	url, name string
+}
+
+func timeoutFn(seconds int) func(string, string) (net.Conn, error) {
+	d := time.Duration(seconds)
+	timeout := time.Duration(d * time.Second)
+	return func(network, addr string) (net.Conn, error) {
+		return net.DialTimeout(network, addr, timeout)
+	}
 }
 
 // Log sends the data to an HTTP endpoint
@@ -48,7 +58,11 @@ func cfg() (client *http.Client, name, url string) {
 	if b, ok := config.GroupBool("jog", "verifySSL"); ok {
 		tr = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: b}}
 	}
-
+	timeout, ok := config.GroupInt("job", "timeout")
+	if !ok {
+		timeout = 3
+	}
+	tr.Dial = timeoutFn(timeout)
 	client = &http.Client{Transport: tr}
 	name = config.RequiredGroupString("jog", "name")
 	url = config.RequiredGroupString("jog", "url")
