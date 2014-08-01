@@ -34,6 +34,22 @@ func timeoutFn(seconds int) func(string, string) (net.Conn, error) {
 	}
 }
 
+func cfg() (client *http.Client, name, url string) {
+	tr := &http.Transport{}
+	if b, ok := config.GroupBool("jog", "verifySSL"); ok {
+		tr = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: b}}
+	}
+	timeout, ok := config.GroupInt("job", "timeout")
+	if !ok {
+		timeout = 3
+	}
+	tr.Dial = timeoutFn(timeout)
+	client = &http.Client{Transport: tr}
+	name = config.RequiredGroupString("jog", "name")
+	url = config.RequiredGroupString("jog", "url")
+	return
+}
+
 // Log sends the data to an HTTP endpoint
 func (l *basic) Log(m interface{}) (int, error) {
 	// Marshal to JSON
@@ -51,23 +67,6 @@ func (l *basic) Log(m interface{}) (int, error) {
 		return 0, errors.New(fmt.Sprintf("received a `%d` from endpoint `%s` with data -> %s", resp.StatusCode, l.url, b))
 	}
 	return len(b), nil
-}
-
-func cfg() (client *http.Client, name, url string) {
-	tr := &http.Transport{}
-	if b, ok := config.GroupBool("jog", "verifySSL"); ok {
-		tr = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: b}}
-	}
-	timeout, ok := config.GroupInt("job", "timeout")
-	if !ok {
-		timeout = 3
-	}
-	tr.Dial = timeoutFn(timeout)
-	client = &http.Client{Transport: tr}
-	name = config.RequiredGroupString("jog", "name")
-	url = config.RequiredGroupString("jog", "url")
-
-	return
 }
 
 // SetBasic sets the output of the log package so any logging is passed through a basic logger
